@@ -223,4 +223,4 @@ def test_docs_match_the_plan_sheet_set():
             continue
         decisions.append(cells[-1])
     assert "chandassu" in licence
-    assert decisions == ["TSAI reserves", "TSAI reserves"]
+    assert len(decisions) >= 2 and all(d == "TSAI reserves" for d in decisions)

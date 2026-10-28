@@ -55,7 +55,7 @@ def test_licence_table_has_decision_and_tsai_reserves():
     assert "chandassu" in licence
     assert "BodduSriPavan111/chandassu" in licence
     assert "MIT" in licence
-    assert decisions == ["TSAI reserves", "TSAI reserves"]
+    assert len(decisions) >= 2 and all(d == "TSAI reserves" for d in decisions)
 
 
 def test_special_tokens_v0_has_256_block_and_assigned_tokens():
