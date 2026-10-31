@@ -116,10 +116,21 @@ The budget covers the think span and the tool trace. It does not cover the visib
 - **Not markers:** the hyphen in Andhranaayaka and the danda `।` in Laavanya are the yati pause, plain text. `U+200C` ZWNJ and `U+200D` ZWJ are part of Telugu writing (1,014 poems). Do not reserve them.
 - **New token request:** none. The ChatML `v0` block above already covers this dataset. No assigned id is added or renumbered.
 
-### 2. Ajay Kumar — Dataset section *(placeholder for PR to `g10-week1-post-training`)*
+### 2. Ajay Kumar — JavaScript / TypeScript (`code-js-ts` · `bigcode/starcoderdata`)
 
-- **Pack / Language / Source:** *(to be added by Ajay Kumar via PR)*
-- **Dataset markers:** *(to be added by Ajay Kumar via PR; deduplicated into consolidated list on merge)*
+- **Core team:** 10. Post-training and Agentic
+- **Pack / Language / Source:** `code-js-ts` / Code (JavaScript / TypeScript) / `bigcode/starcoderdata` (JavaScript + TypeScript subsets, 500-document pack: 250 JavaScript, 250 TypeScript)
+- **Licence decision:** `TSAI reserves`; see the `code-js-ts` licence entry.
+- **Chat & ghost markers found in dataset (`B3`):** none in all 500 documents. Checked by known patterns and open-ended catalogues, all 0 hits:
+  - known formats: ChatML / Llama-3 style `<|...|>` (also fullwidth `<｜...｜>`), `[INST]` / `[/INST]`, `<<SYS>>`, `<s>` / `</s>`, `<think>`, `<tool_call>`, `<tool_result>`, `<unk>` / `<pad>` / `<mask>` / `<bos>` / `<eos>`, SentencePiece `▁`, and `<|reserved_NNN|>`;
+  - catalogues: open-ended `<|...|>` pattern, `[UPPERCASE]` tags, `<UPPERCASE_WORD>` pattern, line-initial role prefixes (`### Instruction:`, `### Assistant:`, `### Response:`, `User:`, `System:`), HTML-escaped forms (`&lt;think&gt;`, `&lt;im_start&gt;`).
+  - One `System:` match was found and classified as ordinary code: it is a substring of the TypeScript parameter declaration `energySystem: EnergySystem<T>`, not a role prefix.
+- **Dataset-specific markers in `bigcode/starcoderdata` (JavaScript / TypeScript subset) — found; they are values, not structure:** 245 of 500 documents contain a StarCoder metadata prefix: `<reponame>` (101 documents), `<filename>` (105), `<gh_stars>` (107). An offset check confirmed that each of these 245 documents begins with one of the tags at byte offset 0. Per the instructor ruling (27 Oct) they are plain text and must not receive a token id. Recommend stripping them in pre-training cleaning (B3), pending pipeline owner confirmation, consistently across packs. No notebook markers (`<jupyter_*>`, `<empty_output>`) and no commit or issue markers (`<commit_*>`, `<issue_*>`) occur in this pack.
+- **Redaction placeholders — not tokens:** 30 of 500 documents carry PII placeholders — `<NAME>` (25 occurrences, 14 documents), `<EMAIL>` (29 occurrences, 10 documents), `<PASSWORD>` (14 occurrences, 10 documents), `<KEY>` (13 occurrences, 3 documents). Keep them as plain text; they mark where the anonymiser replaced a value and must not enter the vocabulary. Two documents (`6d3b68ef0b39f910`, `37390a3a6ca4502c`) contain `<PASSWORD>` in unquoted JavaScript expression contexts (e.g. `sendKeys(<PASSWORD>)`, `this.password = <PASSWORD>`); these are potential syntax-break candidates identified by lexical context inspection and should be flagged for pipeline review. The nine `<KEY>` occurrences in `placekeyIsValid('<KEY>')` are likely PII redactions but remain somewhat ambiguous; no allocation is requested regardless.
+- **Not special tokens — TypeScript generic syntax:** `<SECONDARY_STRUCTURE_SECTION>`, `<RESIDUE_TYPE>`, and `<UUID>` matched the open-ended uppercase-bracket scanner. All were confirmed as ordinary TypeScript generic type parameters (e.g. `createContainerReducer<SECONDARY_STRUCTURE_SECTION>(...)`), not control markers or PII placeholders.
+- **Unicode findings:** one document (`91cf7be64838e0d0`) carries a BOM `U+FEFF` at offset 101, immediately after its StarCoder metadata prefix, at the start of the TypeScript source file. No ZWJ, ZWNJ, ZWSP, SentencePiece `▁` (U+2581), replacement character (`U+FFFD`) or full-width delimiter variants occur in any of the 500 documents. Handle BOM in text cleaning (G4), not in the tokenizer vocabulary.
+- **New special-token request:** none. The shared ChatML `v0` block covers this dataset. The four FIM slots (`010..012`, `016`) already reserved cover agentic JavaScript / TypeScript edits; no id is added or renumbered.
+- **Action:** keep `B3` stripping in pre-training cleaning (nothing to strip from ghost markers in this pack); strip or keep the `<reponame>` / `<filename>` / `<gh_stars>` prefix consistently and pending pipeline owner confirmation; flag the two syntax-break documents for review; preserve TypeScript generic syntax, redaction placeholders, and the BOM document as plain text until cleaning decisions are confirmed.
 
 ### 3. Amit T — Indic web (`ind-mr-fw2` · FineWeb-2 Marathi)
 
