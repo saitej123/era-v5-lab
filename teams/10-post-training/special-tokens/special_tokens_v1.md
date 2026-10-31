@@ -85,3 +85,4 @@ Unassigned slots `003..009`, `017..023`, and `030..255` are mapped to:
 3. **IndicCorpV2 (`ind-hi-indiccorp` · Ranjani)**: Verified clean. No ghost tokens found.
 4. **FineWeb-2 Marathi (`ind-mr-fw2` · Amit T)**: Verified clean. Zero ghost tokens. ZWJ/ZWNJ preserved for Marathi orthography (`ऱ्या`, conjuncts).
 5. **FineWeb-2 Kannada (`ind-kn-fw2` · Lokesh Arundathi)**: No new token request or allocation change. Preserve vowel sequences, ZWNJ (`U+200C`) and ZWJ (`U+200D`) as text, including the Unicode RA + ZWJ + virama order and its legacy alternative.
+6. **StarCoder (`code-python` · f20201351h-maker, assigned 500-document pack)**: No ghost chat markers found (0 of 500 documents). Strip the StarCoder metadata prefix (`<reponame>`, `<filename>`, `<gh_stars>`, 272 documents) in cleaning. PII placeholders (`<NAME>`, `<EMAIL>`, `<PASSWORD>`, `<KEY>`) stay plain text. No new token request.

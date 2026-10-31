@@ -115,13 +115,21 @@ Three stages. Sets marked `excluded` stay in the table with the reason and are n
 - **Licence:** `ODC-By v1.0` (Open Data Commons Attribution License v1.0). Commercial use is explicitly permitted with attribution.
 - **Decision:** `TSAI reserves` — commercial-use only rule satisfied. Attribution requirement to be fulfilled in the public model card and training datasheet. Raw data not committed to repository.
 
-### 4. Anirudh Narla — Dataset section *(placeholder for PR to `g10-week1-post-training`)*
+### 4. f20201351h-maker — StarCoder (`code-python` · `bigcode/starcoderdata`, assigned 500-document pack)
 
-- **Set:** *(TBD via PR)*
-- **Language:** *(TBD via PR)*
-- **Source:** *(TBD via PR)*
-- **Licence:** *(TBD via PR)*
-- **Decision:** `TSAI reserves`
+- **Core team:** 10. Post-training and Agentic · **Week 2:** 11. Release · **Week 3:** 6. Performance and Kernels
+- **Set:** `code-python` (500-document pack; already in the Stage 0 table, so no new row)
+- **Language:** `Code` (Python)
+- **Source:** `bigcode/starcoderdata` on Hugging Face (gated; users accept its Terms of Use)
+- **Generator model:** none (no LLM-generated text). The files are source code from public GitHub repositories; 12 of them are tool-generated code such as Django migrations.
+- **Licence:** `other`, as on the dataset card. Users must abide by the terms of each file's original licence, including attribution.
+- **What the pack shows (licence headers at the top of the 500 files):** Apache-2.0 45, MIT 16, BSD 6, GPL 6, LGPL 2, among the licence families that repeat in the pack. One-off headers were not classified, so other licences may still be present.
+  **At least 8 files carry a GPL/LGPL header:**
+  - GPL: `890651e4733e8944` (GPLv3+), `bcb288906f19d84d` (GPLv3+), `da1e1a24ce2d8184` (GPLv3), `1ba7834883790ea6` (GPLv2 with the Universal FOSS Exception), `b722cf3b05cb227a` (GPLv2), `e2c3db81526c288d` (GPLv2+).
+  - LGPL: `6fbbb7afb4c34553` (LGPLv3+), `0f044ee517526307` (tri-licence MPL 1.1 / GPL 2.0 / LGPL 2.1).
+- **Decision:** `TSAI reserves`.
+  - Proposal: keep the permissive-licensed files (Apache-2.0, MIT, BSD). Keep each file's path and licence in a per-file manifest for attribution, because the `E4` cleaning medicine removes repeated licence headers from the text.
+  - Flag the GPL/LGPL files for TSAI and drop them by default: the TSAI data rule lets in permissive licences and CC-BY-SA with attribution, and GPL/LGPL is neither. The licence follows the file, not the corpus (same finding as `code-go`, section 10).
 
 ### 5. Ashish Kamble — Dataset section *(placeholder for PR to `g10-week1-post-training`)*
 

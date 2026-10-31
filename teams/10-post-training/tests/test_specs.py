@@ -23,7 +23,7 @@ EXPECTED_MEMBERS = (
     "Sai Teja",
     "Ajay Kumar",
     "Amit T",
-    "Anirudh Narla",
+    "f20201351h-maker",
     "Ashish Kamble",
     "Hema Varshini Palpandian",
     "Lokesh Arundathi",

@@ -285,3 +285,29 @@ Reasoning effort: 4k
 ```
 
 SWE and browser verification results are recorded in [the Kannada report](../results/kannada_swe_e2e.md). Joiner sequences are documented in the Kannada section of [the special-token notes](../special-tokens/special_tokens_v0.md).
+
+## Python application: `code-python`
+
+f20201351h-maker — `code-python` (`bigcode/starcoderdata`). The existing format and `render.py` apply to Python source without new tokens. The example below is newly written for this section, not a row from the `code-python` pack and not an approved training row. The team's executed SWE task (`results/swe_e2e.md`) is already a Python task, so this section adds no second one.
+
+- Python source goes in message content and in tool-call JSON string values. Indentation, tabs, CRLF line endings, f-string braces, decorators and type hints (`->`) are preserved exactly; `render.py` does not reformat code.
+- StarCoder metadata tags (`<reponame>`, `<filename>`, `<gh_stars>`) and StarCoder PII placeholders (`<NAME>`, `<EMAIL>`, `<PASSWORD>`, `<KEY>`) are not chat markers. `render.py` keeps them as ordinary text, and `tokenize_markers()` never maps them to a special-token ID. The metadata prefix is removed upstream by the `B3` cleaning medicine, so it should not reach a rendered transcript.
+- A chat marker or a plain-text look-alike inside Python source (for example `s = "<|im_start|>"` or `s = "<think>"`) is rejected by `render.py`, as for any other content. The diagnosis scan found none of the scanned markers in this pack (0 of 500 documents).
+- Same roles and markers; effort stays the plain line `Reasoning effort: {level}`.
+
+Rendered excerpt (effort `4k`), a tool turn that returns a Python file with StarCoder PII placeholders:
+
+```text
+<|im_start|>tool
+<|tool_result|>
+DB_USER = "<NAME>"
+DB_EMAIL = "<EMAIL>"
+
+
+def dsn(host: str) -> str:
+    return f"{DB_USER}@{host}"
+
+<|/tool_result|><|im_end|>
+```
+
+Checked by `tests/test_code_python_chat_format.py`.

@@ -146,10 +146,19 @@ The budget covers the think span and the tool trace. It does not cover the visib
   - **Evaluation fingerprints:** not registered. TSAI decision for v0: do not add `<|eval_fp_*|>`. IDs `021` to `023` stay reserved and unused. Team 9 keeps any canary as a plain-text string in eval data.
   - **Decision:** `TSAI reserves`. All remaining unassigned slots (`003..009`, `017..023`, `030..255`) remain reserved `<|reserved_NNN|>`.
 
-### 4. Anirudh Narla — Dataset section *(placeholder for PR to `g10-week1-post-training`)*
+### 4. f20201351h-maker — StarCoder (`code-python` · `bigcode/starcoderdata`, assigned 500-document pack)
 
-- **Pack / Language / Source:** *(to be added by Anirudh Narla via PR)*
-- **Dataset markers:** *(to be added by Anirudh Narla via PR; deduplicated into consolidated list on merge)*
+- **Core team:** 10. Post-training and Agentic · **Week 2:** 11. Release · **Week 3:** 6. Performance and Kernels
+- **Pack / Language / Source:** `code-python` (500 Python files, median 2.8k chars) / `Code` (Python) / `bigcode/starcoderdata`
+- **Method:** pattern scan of all 500 documents for chat and ghost markers, and exact counts of the StarCoder tags.
+- **Chat and ghost markers (`B3`):** **0** in all 500 documents of this pack for the patterns scanned: `<|im_start|>`, `<|im_end|>`, `<|endoftext|>`, `<|fim_*|>`, `[INST]`, `[/INST]`, `### Assistant:`, `### Human:`, `### User:`, `<think>` and `</think>`.
+- **StarCoder metadata prefixes (`B3`):** **272 of 500** documents start with metadata tags at offset 0: `<reponame>` 115, `<filename>` 118, `<gh_stars>` 106 (one document can carry several).
+- **StarCoder PII placeholders:** **83 of 500** documents: `<NAME>` 55, `<EMAIL>` 42, `<PASSWORD>` 16, `<KEY>` 3. In 7 documents a placeholder breaks the Python syntax (for example `password=<PASSWORD>,`).
+- **Not special tokens:** all the StarCoder tags and placeholders above. They are dataset text, not chat or control markers.
+- **Proposal for G3:**
+  - No new token request from this pack.
+  - Strip the metadata prefix in cleaning (`B3`, 272 documents). Do not add tokens for it.
+  - The PII placeholders stay ordinary text for the tokenizer, never special tokens. `<EMAIL>` matches TSAI's typed-placeholder rule for personal data; whether `<NAME>`, `<PASSWORD>` and `<KEY>` stay as they are is a question for TSAI. Drop the 7 files whose syntax they break.
 
 ### 5. Ashish Kamble — Dataset section *(placeholder for PR to `g10-week1-post-training`)*
 
