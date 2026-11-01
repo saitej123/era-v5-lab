@@ -27,6 +27,7 @@ Three stages. Sets marked `excluded` stay in the table with the reason and are n
 | ind-hi-indiccorp | [ai4bharat/IndicCorpV2](https://huggingface.co/datasets/ai4bharat/IndicCorpV2) | Hindi (hi) | CC-BY-4.0 (commercial use permitted with attribution) | TSAI reserves |
 | ind-kn-fw2 | [HuggingFaceFW/fineweb-2](https://huggingface.co/datasets/HuggingFaceFW/fineweb-2) | Kannada (kn) | ODC-By v1.0 (commercial use permitted with attribution) | TSAI reserves |
 | code-go | bigcode/starcoderdata | Code (Go) | other (per-file permissive Stack licences; attribution required) | TSAI reserves |
+| code-js-ts | bigcode/starcoderdata | Code (JavaScript / TypeScript) | other (per-file upstream licensing; attribution and training-use rights require further verification) | TSAI reserves |
 
 ### Stage 1: Supervised fine-tuning (SFT) instruction mixture
 
@@ -118,12 +119,13 @@ Three stages. Sets marked `excluded` stay in the table with the reason and are n
 - **Decision:** `TSAI reserves`
 - **Reading note:** 1,134 Vemana poems store a carriage return as the plain letters `_x000D_`. 23 poems have words replaced by `...`. ZWNJ and ZWJ stay in the text. They are not a licence issue.
 
-### 2. Ajay Kumar — Dataset section *(placeholder for PR to `g10-week1-post-training`)*
+### 2. Ajay Kumar — JavaScript / TypeScript (`code-js-ts` · `bigcode/starcoderdata`)
 
-- **Set:** *(TBD via PR)*
-- **Language:** *(TBD via PR)*
-- **Source:** *(TBD via PR)*
-- **Licence:** *(TBD via PR)*
+- **Core team:** 10. Post-training and Agentic
+- **Set:** `code-js-ts`
+- **Language:** Code (JavaScript / TypeScript)
+- **Source:** `bigcode/starcoderdata`, JavaScript / TypeScript subset (500-document pack)
+- **Licence:** `other` — StarCoder training corpus drawn from The Stack; individual files may retain different upstream licences and attribution notices. Repository-level licence terms and training-use rights require further verification.
 - **Decision:** `TSAI reserves`
 
 ### 3. Amit T — Indic web (`ind-mr-fw2` · FineWeb-2 Marathi)
