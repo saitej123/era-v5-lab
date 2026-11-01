@@ -1,0 +1,85 @@
+# SFT Mixture Proposal (`sft_mix_proposal.md`)
+
+Shared G10 SFT mixture proposal (`teams/10-post-training/sft/sft_mix_proposal.md`).  
+Prepared by **Sai Teja (G10 Lead)** and **Member B** for **Gate 2 (Thu 12 Nov proposal / Sat 14 Nov TSAI decision)**.
+
+---
+
+## 1. Design Goal & Binding Rules
+
+G10 post-trains an **agentic, code-first, multilingual (Indic + English) reasoning model** using `chat_format_v0` on Team 3's frozen `BrahmicTokenizer-131K` (`vocab_size = 131,072`). Every dataset entering the SFT mixture must satisfy four hard gates before conversion by `sft/convert.py`:
+
+1. **Licence & Generator Gate (`licences/licence_table.md`):**
+   - Only sets marked `TSAI reserves` (permissive: `MIT`, `Apache-2.0`, `BSD`, `ODC-By`, `CC-BY-4.0`) or `allowed (CC-BY-SA, attribution needed)` are eligible.
+   - Generator models are restricted to **human-written / real GitHub commits**, **execution-verified synthesis**, or **open-weight non-Llama models** (`DeepSeek-R1`, `DeepSeek-V3.2`, `Qwen3-Coder-480B-A35B-Instruct`, `QwQ-32B`, `gpt-oss-120b`, `StarCoder2`, `Mixtral-8x22B`, `Goedel-Prover-V2-32B`).
+   - Zero rows from closed models (`GPT-3.5`, `GPT-4`, `GPT-4o`, `Claude`, `Gemini`) or `Llama` models (`Llama-2`, `Llama-3.1`, `Llama-3.3`) are allowed.
+2. **Decontamination Gate (`sft/decontam_report.md`):**
+   - Every set is filtered through Team 9's `decontam_check.py` against `fingerprints/v2` (covering SWE-bench Verified/Live/Pro, Terminal-Bench 2, BFCL v3, HumanEval+, MBPP+, LiveCodeBench, Codeforces, AIME 2024/2025, GPQA Diamond, MMLU, MILU, FLORES-200, IN22, GSM8K) and recorded with its clean `set_sha256`.
+3. **ChatML `v0` & Loss Mask Gate (`chat-format/render.py`):**
+   - Every sample renders deterministically with exact Team 3 token IDs (`<|im_start|>` `129994`, `<|im_end|>` `130816`, `<|endoftext|>` `130822`, `<|think|>` `130823`, `<|/think|>` `130824`, `<|tool_call|>` `130773`, `<|/tool_call|>` `130825`, `<|tool_result|>` `130774`, `<|/tool_result|>` `130826`).
+   - **Loss masks** are `1` strictly on `assistant` turns (`<|think|>...<|/think|>`, `<|tool_call|>...<|/tool_call|>`, and final assistant reply) and `0` on `system`, `user`, and `tool` (`<|tool_result|>...<|/tool_result|>`) turns so the model never learns to hallucinate user prompts or untrusted tool outputs.
+4. **Script Integrity Gate (No NFKC; Keep `ZWJ` & `ZWNJ`):**
+   - Pre-tokenization preserves `ZWJ` (`U+200D`) and `ZWNJ` (`U+200C`) and never applies NFKC to content, protecting Indic conjuncts (`ind-hi-hplt`, `ind-mr-fw2`, `ind-kn-fw2`, `ind-ta-sangraha-v`, `chandassu`) and mathematical symbols.
+
+---
+
+## 2. Proposed SFT Mixture Shares by Area
+
+Because ERA V5 is an **agentic coding and reasoning model with first-class Indic fluency**, we propose the following 5-area SFT token/trajectory share for TSAI's Gate 2 decision:
+
+| Area | Proposed Share (%) | Target Role in Post-Training | Primary Approved Datasets (`licences/licence_table.md`) |
+| :--- | :---: | :--- | :--- |
+| **1. Code** *(Generation, Commits & Competitive Reasoning)* | **35%** | Core polyglot programming, surgical diffs, unit-test synthesis, and long-CoT algorithmic problem solving | `sft-code-opencodereasoning` (`nvidia/OpenCodeReasoning`), `sft-code-opencodereasoning-2` (`nvidia/OpenCodeReasoning-2`), `sft-code-codeforces-cots` (`open-r1/codeforces-cots`), `sft-code-commitpackft` (`bigcode/commitpackft`), `sft-code-self-oss-instruct` (`bigcode/self-oss-instruct-sc2-exec-filter-50k`) |
+| **2. Agentic** *(Multi-Turn SWE & Terminal Trajectories)* | **25%** | Repository navigation, multi-step bash/terminal debugging, fault localization, patch generation, and test verification | `sft-code-swe-rebench-openhands` (`nebius/SWE-rebench-openhands-trajectories`), `sft-code-nemotron-terminal` (`nvidia/Nemotron-Terminal-Corpus`), `nvidia/Nemotron-Cascade-SFT-SWE` |
+| **3. Tool Use** *(Structured Function Calling & Schema Binding)* | **15%** | Deterministic JSON tool invocation inside `<\|tool_call\|>...<\|/tool_call\|>`, parallel tool `id` binding, and reasoning over `<\|tool_result\|>` | `sft-salesforce-xlam-60k` (`Salesforce/xlam-function-calling-60k`), `nvidia/Nemotron-Agentic-v1`, `nvidia/Nemotron-SFT-Agentic-v2` |
+| **4. Indic** *(Native-Script Instruction, Translation & Code-Switching)* | **15%** | Native Indic instruction following across the 10 Brahmic scripts (`hi, mr, ta, te, kn, bn, gu, ml, or, pa`), preserving `ZWJ`/`ZWNJ` and avoiding translationese | `sft-indic-aya-dataset` (`CohereLabs/aya_dataset`), `sft-indic-aya-collection` (`CohereLabs/aya_collection`, Indic human/templated splits) |
+| **5. General** *(Math, Science & Calibrated Reasoning Effort)* | **10%** | Formal math proofs, STEM reasoning, general instruction following, and calibrating the four plain-text effort budgets (`1k, 4k, 16k, 64k`) | `sft-stem-code-openthoughts3` (`open-thoughts/OpenThoughts3-1.2M`), `sft-rl-math-openmathreasoning` (`nvidia/OpenMathReasoning`), `sft-math-openr1-math` (`open-r1/OpenR1-Math-220k`), `sft-math-nemotron-math-v2` (`nvidia/Nemotron-Math-v2`), `sft-math-nemotron-proofs` (`nvidia/Nemotron-Math-Proofs-v1`), `sft-science-nemotron-science` (`nvidia/Nemotron-Science-v1`), `sft-bespoke-stratos-17k` (`bespokelabs/Bespoke-Stratos-17k`), `sft-dolly-15k` (`databricks/databricks-dolly-15k`) |
+| **Total** | **100%** | | |
+
+---
+
+## 3. Rationale for Each Area Share
+
+### Area 1: Code — 35%
+- **Why 35%:** The model's primary downstream benchmark suite (`SWE-bench Verified/Live/Pro`, `HumanEval+`, `MBPP+`, `LiveCodeBench`, `Codeforces`) demands strong single-file and multi-file code synthesis before RLVR (`Stage 2`) begins.
+- **Composition within the 35%:**
+  - **20% Long-CoT Competitive & Algorithmic Code (`OpenCodeReasoning`, `OpenCodeReasoning-2`, `codeforces-cots`):** Generated by `DeepSeek-R1` and `QwQ-32B` under `CC-BY-4.0`. Teaches structured problem decomposition inside `<|think|>...<|/think|>` before emitting code.
+  - **10% Execution-Verified Instruction Code (`self-oss-instruct-sc2-exec-filter-50k`):** Generated via SelfCodeAlign (`StarCoder2`, `ODC-By`), where every Python sample passes unit-test execution.
+  - **5% Real Commit Diffs (`commitpackft`):** Human GitHub commit messages paired with code diffs (`MIT`), grounding the model in concise patch editing without synthetic verbosity.
+
+### Area 2: Agentic — 25%
+- **Why 25%:** Single-turn code generation does not teach an agent how to inspect a repository, run `pytest`, read a traceback from `<|tool_result|>`, and iterate when a patch fails. A dedicated 25% share of multi-turn trajectories is required so the model enters G10's 20 Docker SWE environments (`swe-envs/`) with a working action-observation loop.
+- **Composition within the 25%:**
+  - **15% SWE Repository Trajectories (`nebius/SWE-rebench-openhands-trajectories`, `nvidia/Nemotron-Cascade-SFT-SWE`):** Multi-turn issue resolution trajectories generated by `Qwen3-Coder-480B-A35B-Instruct` and `DeepSeek-R1-0528` (`CC-BY-4.0`), already decontaminated against `SWE-bench Verified`.
+  - **10% Terminal & CLI Agent Trajectories (`nvidia/Nemotron-Terminal-Corpus`):** Generated by `DeepSeek-V3.2` (`CC-BY-4.0`), training command-line debugging, file-system manipulation, and recovery from non-zero exit codes.
+
+### Area 3: Tool Use — 15%
+- **Why 15%:** `render.py` enforces strict JSON serialization (`sort_keys=True`, optional parallel `id`, `<|tool_call|>\n{...}\n<|/tool_call|>`). Without explicit multi-tool and "when-not-to-call" training, models either emit malformed JSON or call tools unnecessarily.
+- **Composition within the 15%:**
+  - **8% Execution-Verified Multi-Tool Calls (`Salesforce/xlam-function-calling-60k`):** Generated by open-weight models (`DeepSeek-V2-Chat`, `Mixtral-8x22B`, `CC-BY-4.0`) and verified through Salesforce's APIGen execution checker.
+  - **7% Interactive Multi-Turn Tool & Search Agents (`nvidia/Nemotron-Agentic-v1`, `nvidia/Nemotron-SFT-Agentic-v2`):** Generated by `gpt-oss-120b`, `Qwen3-235B`, and `DeepSeek-V3.2` (`CC-BY-4.0` / `Apache-2.0` / `MIT`), covering multi-step tool chaining and user clarification turns.
+
+### Area 4: Indic — 15%
+- **Why 15%:** `BrahmicTokenizer-131K` allocates dedicated script blocks across 9 Brahmic scripts (`Devanagari`, `Bengali`, `Tamil`, `Telugu`, `Kannada`, `Malayalam`, `Gujarati`, `Gurmukhi`, `Odia`). If SFT is 98% English/code, post-training causes catastrophic forgetting on Indic scripts and breaks `ZWJ`/`ZWNJ` conjunct generation. A 15% Indic share preserves native-script fluency on `MILU` and `IndicGenBench`.
+- **Composition within the 15%:**
+  - **10% Human-Written Indic Instructions (`CohereLabs/aya_dataset`):** Pure human-written prompts and responses (`Apache-2.0`) with zero translationese (`D5`) or machine-translation damage (`D4`).
+  - **5% Curated Indic Task Templates (`CohereLabs/aya_collection`):** Filtered to native Indic script splits (`hi, mr, ta, te, kn, bn, gu, ml, or, pa`, `Apache-2.0`), pre-processed with G10's text-prep rule (strip `U+200B`/`U+FEFF`, preserve `U+200D` ZWJ and `U+200C` ZWNJ, no NFKC).
+
+### Area 5: General (Math, Science & Effort Calibration) — 10%
+- **Why 10%:** High-precision mathematical and scientific reasoning transfers directly to algorithmic coding and prevents the model from overfitting to narrow code templates.
+- **Composition within the 10%:**
+  - **7% Open-Weight Math & STEM CoT (`OpenThoughts3-1.2M`, `OpenMathReasoning`, `OpenR1-Math-220k`, `Bespoke-Stratos-17k`, `Nemotron-Science-v1`, `Nemotron-Math-v2`, `Nemotron-Math-Proofs-v1`):** Generated by `DeepSeek-R1`, `QwQ-32B`, `gpt-oss-120b`, and `Goedel-Prover-V2-32B` (`Apache-2.0`, `CC-BY-4.0`, and `CC-BY-SA-4.0` with attribution).
+  - **3% Concise Human General Instructions (`databricks-dolly-15k`, `NuminaMath-1.5`):** Anchors direct `1k`-effort responses without unnecessary CoT inflation.
+
+---
+
+## 4. Reasoning Effort Budget Distribution (`1k, 4k, 16k, 64k`)
+
+Every rendered SFT transcript starts with `Reasoning effort: {level}` in the first `system` turn (`render.py`). To ensure the model obeys all four effort budgets at inference time, `sft/convert.py` assigns each sample's effort label from the actual token length of its `<|think|>` + `<|tool_call|>`/`<|tool_result|>` trace and balances the mixture across all four tiers:
+
+| Effort Level | Token Budget (Think + Tool Trace) | Target Share of SFT Mix | Typical Samples Assigned to This Tier |
+| :--- | :---: | :---: | :--- |
+| `1k` | $\le 1,024$ tokens | **30%** | Direct commits (`commitpackft`), single-turn function calls (`xlam-function-calling-60k`), concise Indic Q&A (`aya_dataset`, `dolly-15k`) |
+| `4k` | $1,025 \text{ – } 4,096$ tokens | **35%** | Standard Python/polyglot code synthesis (`self-oss-instruct`), medium math/science problems, 2–4 turn tool interactions (`Nemotron-Agentic-v1`) |
+| `16k` | $4,097 \text{ – } 16,384$ tokens | **25%** | Competitive programming CoT (`OpenCodeReasoning`, `codeforces-cots`), multi-step terminal debugging (`Nemotron-Terminal-Corpus`), hard STEM proofs (`OpenThoughts3-1.2M`) |
+| `64k` | $16,385 \text{ – } 65,536$ tokens | **10%** | Long-horizon SWE repository trajectories (`SWE-rebench-openhands-trajectories`, `Nemotron-Cascade-SFT-SWE`) and deep self-correcting math/code traces |

@@ -97,10 +97,47 @@ def test_special_tokens_v1_if_present():
     path = TEAM / "special-tokens" / "special_tokens_v1.md"
     if path.exists():
         doc = path.read_text(encoding="utf-8")
-        assert "256" in doc
+        assert "131,072" in doc or "256" in doc
         assert "fim_prefix" in doc
         assert "fim_pad" in doc
         assert "subagent_call" in doc
         assert "021 eval_fp_0" not in doc
         assert "unused" in doc.lower()
+        for tok_id in (
+            "129994",
+            "130773",
+            "130774",
+            "130801",
+            "130802",
+            "130803",
+            "130804",
+            "130816",
+            "130817",
+            "130818",
+            "130822",
+            "130823",
+            "130824",
+            "130825",
+            "130826",
+            "130827",
+            "130828",
+        ):
+            assert tok_id in doc
+        assert "U+200D" in doc and "U+200C" in doc
+        assert "do not apply nfkc" in doc.lower()
+
+
+def test_sft_mix_proposal_covers_five_areas_and_rules():
+    path = TEAM / "sft" / "sft_mix_proposal.md"
+    assert path.exists()
+    doc = path.read_text(encoding="utf-8")
+    for area in ("Code", "Agentic", "Tool Use", "Indic", "General"):
+        assert area in doc
+    for share in ("35%", "25%", "15%", "10%", "100%"):
+        assert share in doc
+    for budget in ("1k", "4k", "16k", "64k"):
+        assert f"`{budget}`" in doc
+    assert "U+200D" in doc and "U+200C" in doc
+    assert "NFKC" in doc
+
 
