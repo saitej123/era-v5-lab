@@ -151,7 +151,7 @@ The format and `render.py` apply to Hindi (Devanagari) unchanged, with no langua
   - **Do not apply NFKC to content.** It splits precomposed nukta letters (`ज़` `U+095B` becomes `ज` + `़`) and folds compatibility characters in mixed text (`10²` becomes `102`).
   - **Remove only `U+200B` and `U+FEFF`.** `render.py` alone does not reject a marker with a zero-width space inside (`<|th` + `U+200B` + `ink|>`), so this removal must run before rendering. After it, the hidden marker is rejected.
 - The `ind-hi-hplt` pack has no precomposed nukta letters and no ZWJ/ZWNJ (0 of 500 documents), so it is not affected. Other Hindi sources will have them.
-- `special_tokens_v1.md` asks for NFKC and removal of `U+200B..U+200D` (Pre-tokenization line). For Indic text this conflicts with the same file's per-pack note that ZWJ/ZWNJ are kept. The Hindi SWE task below tests the narrower rule.
+- `special_tokens_v1.md` now states this rule (no NFKC, keep ZWJ/ZWNJ). Its earlier draft asked for NFKC and removal of `U+200B..U+200D`, which conflicted with the per-pack note that ZWJ/ZWNJ are kept. The Hindi SWE task below tests the rule.
 
 Example input to the shared Python module (effort `16k`, with a think span):
 
