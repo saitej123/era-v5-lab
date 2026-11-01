@@ -117,7 +117,7 @@ def main() -> int:
         assert renderer.parse(transcript) == {"effort": "4k", "messages": messages}
         marker_pieces = renderer.tokenize_markers(transcript)
         special_ids = sorted({value for kind, value in marker_pieces if kind == "special"})
-        assert special_ids == [0, 1, 2, 26, 27, 28, 29]
+        assert special_ids == [129994, 130773, 130774, 130816, 130822, 130825, 130826]
 
         summary = {
             "task": "authored local Tamil UTF-8 SWE smoke task",

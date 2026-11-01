@@ -46,7 +46,7 @@ class KannadaChatFormatTests(unittest.TestCase):
                     "effort": effort, "messages": messages}, (label, effort))
                 ids = {value for kind, value in RENDER.tokenize_markers(transcript)
                        if kind == "special"}
-                self.assertEqual(ids, {0, 1, 2, 24, 25, 26, 27, 28, 29})
+                self.assertEqual(ids, {129994, 130773, 130774, 130816, 130822, 130823, 130824, 130825, 130826})
 
     def test_documented_input_and_transcript_match_renderer(self):
         chat = (TEAM / "chat-format" / "chat_format_v0.md").read_text(encoding="utf-8")

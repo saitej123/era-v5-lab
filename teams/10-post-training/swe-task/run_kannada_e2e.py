@@ -142,7 +142,7 @@ def main() -> int:
             assert renderer.parse(transcripts[effort]) == {"effort": effort, "messages": messages}
         ids = sorted({value for kind, value in renderer.tokenize_markers(transcripts["4k"])
                       if kind == "special"})
-        assert ids == [0, 1, 2, 24, 25, 26, 27, 28, 29]
+        assert ids == [129994, 130773, 130774, 130816, 130822, 130823, 130824, 130825, 130826]
         assert (TEAM / TARGET).read_bytes() == original_bytes
         summary = {
             "task": "authored Kannada text-preparation SWE task",

@@ -19,26 +19,32 @@ def _load(name: str, path: Path):
 render_mod = _load("g10_render", TEAM / "chat-format" / "render.py")
 
 
-def test_block_reserves_256_ids_and_every_marker_is_one_special_token():
+def test_team3_tokenizer_ids_replace_000_to_255_numbering():
     rows = render_mod.all_tokens()
-    assert len(rows) == 256
-    assert [row[0] for row in rows] == list(range(256))
+    # 4 existing base chat specials + 64 G10 slots (130822..130885) = 68 entries
+    assert len(rows) == 68
+    ids = [row[0] for row in rows]
+    # Remove 000..255 byte-token numbering completely
+    assert all(tok_id >= 129994 for tok_id in ids)
     surfaces = [row[2] for row in rows]
-    assert len(set(surfaces)) == 256
+    assert len(set(surfaces)) == len(rows)
     assert all(surface.startswith("<|") and surface.endswith("|>") for surface in surfaces)
     assert all("\n" not in surface and " " not in surface for surface in surfaces)
-    assigned = [row for row in rows if row[3] == "assigned"]
-    assert [row[2] for row in assigned] == [
-        "<|endoftext|>",
-        "<|im_start|>",
-        "<|im_end|>",
-        "<|think|>",
-        "<|/think|>",
-        "<|tool_call|>",
-        "<|/tool_call|>",
-        "<|tool_result|>",
-        "<|/tool_result|>",
-    ]
+    assigned = {row[0]: (row[1], row[2]) for row in rows if row[3] == "assigned"}
+    assert assigned == {
+        129994: ("im_start", "<|im_start|>"),
+        130773: ("tool_call", "<|tool_call|>"),
+        130774: ("tool_result", "<|tool_result|>"),
+        130816: ("im_end", "<|im_end|>"),
+        130822: ("endoftext", "<|endoftext|>"),
+        130823: ("think", "<|think|>"),
+        130824: ("think_end", "<|/think|>"),
+        130825: ("tool_call_end", "<|/tool_call|>"),
+        130826: ("tool_result_end", "<|/tool_result|>"),
+    }
+    # Verify IDs are read directly from Team 3's tokenizer file (build_v0_1.py)
+    assert render_mod.TEAM3_BUILD_V0_1.is_file()
+    assert render_mod.load_team3_marker_ids() == assigned
 
 
 def test_effort_budgets_and_turn_tokens():
@@ -95,15 +101,15 @@ def test_render_parse_roundtrip_and_atomic_marker_tokenization():
         assert parsed["effort"] == effort
         assert parsed["messages"] == messages
 
-        # Verify every chat marker is tokenized as one atomic special token ID, never plain text.
+        # Verify every chat marker is tokenized as one atomic Team 3 special token ID, never plain text.
         pieces = render_mod.tokenize_markers(text)
         special_ids = [val for kind, val in pieces if kind == "special"]
-        assert 0 in special_ids  # <|endoftext|>
-        assert 1 in special_ids  # <|im_start|>
-        assert 2 in special_ids  # <|im_end|>
-        assert 24 in special_ids and 25 in special_ids  # <|think|>, <|/think|>
-        assert 26 in special_ids and 27 in special_ids  # <|tool_call|>, <|/tool_call|>
-        assert 28 in special_ids and 29 in special_ids  # <|tool_result|>, <|/tool_result|>
+        assert 130822 in special_ids  # <|endoftext|> (g10_slot_00)
+        assert 129994 in special_ids  # <|im_start|> (base)
+        assert 130816 in special_ids  # <|im_end|> (base)
+        assert 130823 in special_ids and 130824 in special_ids  # <|think|>, <|/think|>
+        assert 130773 in special_ids and 130825 in special_ids  # <|tool_call|>, <|/tool_call|>
+        assert 130774 in special_ids and 130826 in special_ids  # <|tool_result|>, <|/tool_result|>
         for kind, val in pieces:
             if kind == "text":
                 assert "<|" not in str(val)
@@ -200,14 +206,18 @@ def test_empty_optional_fields_are_omitted():
 def test_docs_match_the_plan_sheet_set():
     chat = (TEAM / "chat-format" / "chat_format_v0.md").read_text(encoding="utf-8")
     token_doc = (TEAM / "special-tokens" / "special_tokens_v0.md").read_text(encoding="utf-8")
+    token_v1_doc = (TEAM / "special-tokens" / "special_tokens_v1.md").read_text(encoding="utf-8")
     licence = (TEAM / "licences" / "licence_table.md").read_text(encoding="utf-8")
     for budget in ("1k", "4k", "16k", "64k"):
         assert budget in chat
         assert f"`{budget}`" in token_doc
-    for _, name, surface, status in render_mod.all_tokens():
+    for tok_id, name, surface, status in render_mod.all_tokens():
         if status == "assigned":
             assert surface in token_doc
             assert name in token_doc
+            assert str(tok_id) in token_v1_doc
+            assert surface in token_v1_doc
+            assert name in token_v1_doc
     assert "256" in token_doc
     assert "TSAI reserves" in token_doc
     assert "bigcode/starcoderdata" in licence
