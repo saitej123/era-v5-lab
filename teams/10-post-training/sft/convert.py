@@ -72,6 +72,22 @@ class Skip(Exception):
 
 # --- adapters: one source row -> chat-format messages ----------------------------------------
 
+def commitpackft(row: dict) -> list[dict]:
+    if "instruction" in row and "response" in row:
+        return [
+            {"role": "user", "content": row["instruction"]},
+            {"role": "assistant", "content": row["response"]},
+        ]
+    subject = row["subject"]
+    old_contents = row["old_contents"]
+    new_contents = row["new_contents"]
+    user_prompt = f"{subject}\n\n{old_contents}".strip() if old_contents else subject
+    return [
+        {"role": "user", "content": user_prompt},
+        {"role": "assistant", "content": new_contents},
+    ]
+
+
 def self_oss_instruct(row: dict) -> list[dict]:
     return [
         {"role": "user", "content": row["instruction"]},
@@ -129,7 +145,7 @@ def aya_dataset(row: dict) -> list[dict]:
 
 # set id -> (adapter, source id field, Hugging Face config/split, row selection or None, selection note)
 ADAPTERS: dict[str, tuple[Callable[[dict], list[dict]], str, tuple[str, str], Callable[[dict], bool] | None, str]] = {
-    "sft-code-self-oss-instruct": (self_oss_instruct, "id", ("default", "train"), None, ""),
+    "sft-code-commitpackft": (commitpackft, "commit", ("python", "train"), None, ""),
     "sft-code-codeforces-cots": (codeforces_cots, "id", ("solutions", "train"), None, ""),
     "sft-code-swe-rebench-openhands": (swe_rebench_openhands, "trajectory_id", ("default", "train"), None, ""),
     "sft-indic-aya-dataset": (
@@ -154,8 +170,8 @@ def licence_row(set_id: str, table: Path = LICENCE_TABLE) -> dict:
 
 
 def check_allowed(row: dict) -> None:
-    if not row["decision"].startswith(("TSAI reserves", "allowed", "needs TSAI decision")):
-        raise SystemExit(f"{row['set']} has decision {row['decision']!r}; only TSAI reserves, allowed, or needs TSAI decision sets convert")
+    if not row["decision"].startswith(("TSAI reserves", "allowed")):
+        raise SystemExit(f"{row['set']} has decision {row['decision']!r}; only TSAI reserves or allowed sets convert")
 
 
 # --- one row -> one sample -------------------------------------------------------------------

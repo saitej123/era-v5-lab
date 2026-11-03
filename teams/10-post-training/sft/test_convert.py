@@ -16,7 +16,8 @@ spec.loader.exec_module(convert)
 render, T = convert.render, convert.T
 
 
-SELF_OSS = {"id": 7, "instruction": "Write add(a, b).", "response": "def add(a, b):\n    return a + b\n"}
+COMMITPACK = {"commit": "c7", "instruction": "Write add(a, b).", "response": "def add(a, b):\n    return a + b\n"}
+SELF_OSS = COMMITPACK
 CODEFORCES = {
     "id": "1/A", "finish_reason": "stop",
     "messages": [
@@ -50,7 +51,7 @@ def trained_text(sample: dict) -> list[str]:
 
 
 @pytest.mark.parametrize("set_id,row", [
-    ("sft-code-self-oss-instruct", SELF_OSS),
+    ("sft-code-commitpackft", COMMITPACK),
     ("sft-code-codeforces-cots", CODEFORCES),
     ("sft-code-swe-rebench-openhands", SWE),
     ("sft-indic-aya-dataset", AYA),
@@ -129,7 +130,7 @@ def test_effort_is_smallest_budget_holding_think_and_tool_trace():
 
 
 def test_no_trace_is_1k_and_reply_text_is_not_counted():
-    sample, _ = one("sft-code-self-oss-instruct", dict(SELF_OSS, response="y" * 100_000))
+    sample, _ = one("sft-code-commitpackft", dict(COMMITPACK, response="y" * 100_000))
     assert sample["effort"] == "1k"
 
 
@@ -140,18 +141,18 @@ def test_token_mask_trains_only_tokens_fully_inside_a_span():
 
 
 def test_manifest_reads_licence_table_and_hash_is_stable():
-    a_lines, a = convert.convert("sft-code-self-oss-instruct", [SELF_OSS, SELF_OSS], None, None)
-    b_lines, b = convert.convert("sft-code-self-oss-instruct", [SELF_OSS, SELF_OSS], None, None)
+    a_lines, a = convert.convert("sft-code-commitpackft", [COMMITPACK, COMMITPACK], None, None)
+    b_lines, b = convert.convert("sft-code-commitpackft", [COMMITPACK, COMMITPACK], None, None)
     assert a_lines == b_lines and a["content_sha256"] == b["content_sha256"]
-    assert a["source"] == "bigcode/self-oss-instruct-sc2-exec-filter-50k"
-    assert a["licence"].startswith("odc-by") and a["decision"] == "needs TSAI decision"
-    assert "StarCoder2" in a["generator_model"]
+    assert a["source"] == "bigcode/commitpackft"
+    assert a["licence"].startswith("mit") and a["decision"] == "TSAI reserves"
+    assert "commits" in a["generator_model"]
     assert a["rows"] == 2 and a["effort"] == {"1k": 2, "4k": 0, "16k": 0, "64k": 0}
     assert "estimate" in a["effort_counter"]
 
 
 def test_limit_counts_selected_rows():
-    lines, manifest = convert.convert("sft-code-self-oss-instruct", [SELF_OSS] * 5, 3, None)
+    lines, manifest = convert.convert("sft-code-commitpackft", [COMMITPACK] * 5, 3, None)
     assert len(lines) == 3 and manifest["rows_in"] == 3
 
 
@@ -169,9 +170,11 @@ def test_excluded_or_unknown_sets_are_refused(tmp_path):
         convert.check_allowed(row)
     with pytest.raises(SystemExit):
         convert.licence_row("sft-missing", table)
-    # excluded sets in the real table are refused too
+    # excluded sets in the real table are refused too (including StarCoder2 OpenRAIL-M)
     with pytest.raises(SystemExit):
         convert.check_allowed(convert.licence_row("sft-openhermes-2.5"))
+    with pytest.raises(SystemExit):
+        convert.check_allowed(convert.licence_row("sft-code-self-oss-instruct"))
 
 
 def test_every_adapter_set_is_allowed_in_the_licence_table():
@@ -187,9 +190,9 @@ def test_ids_stay_unique_when_the_source_repeats_its_ids():
 
 
 def test_bad_rows_are_skipped_not_fatal():
-    rows = [{"instruction": "x"}, {"instruction": None, "response": "y"}, SELF_OSS,
-            dict(SELF_OSS, response="")]
-    lines, manifest = convert.convert("sft-code-self-oss-instruct", rows, None, None)
+    rows = [{"instruction": "x"}, {"instruction": None, "response": "y"}, COMMITPACK,
+            dict(COMMITPACK, response="")]
+    lines, manifest = convert.convert("sft-code-commitpackft", rows, None, None)
     assert len(lines) == 1
     assert manifest["skipped"] == {"missing or malformed field (KeyError)": 1,
                                    "empty user turn": 1, "empty assistant turn": 1}
