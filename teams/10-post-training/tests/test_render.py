@@ -3,7 +3,10 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
+
+import pytest
 
 TEAM = Path(__file__).resolve().parents[1]
 
@@ -45,6 +48,35 @@ def test_team3_tokenizer_ids_replace_000_to_255_numbering():
     # Verify IDs are read directly from Team 3's tokenizer file (build_v0_1.py)
     assert render_mod.TEAM3_BUILD_V0_1.is_file()
     assert render_mod.load_team3_marker_ids() == assigned
+
+
+def test_load_team3_marker_ids_from_json(tmp_path):
+    data = {
+        "added_tokens": [
+            {"id": 129994, "content": "<|im_start|>", "special": True},
+            {"id": 130816, "content": "<|im_end|>", "special": True},
+            {"id": 130773, "content": "<|tool_call|>", "special": True},
+            {"id": 130774, "content": "<|tool_result|>", "special": True},
+            {"id": 130822, "content": "<|endoftext|>", "special": True},
+            {"id": 130823, "content": "<|think|>", "special": True},
+            {"id": 130824, "content": "<|/think|>", "special": True},
+            {"id": 130825, "content": "<|/tool_call|>", "special": True},
+            {"id": 130826, "content": "<|/tool_result|>", "special": True},
+        ]
+    }
+    json_path = tmp_path / "mock_tokenizer.json"
+    json_path.write_text(json.dumps(data), encoding="utf-8")
+    loaded = render_mod.load_team3_marker_ids(json_path)
+    assert len(loaded) == 9
+    assert loaded[129994] == ("im_start", "<|im_start|>")
+    assert loaded[130823] == ("think", "<|think|>")
+
+    # Missing token raises ValueError
+    bad_data = {"added_tokens": [{"id": 129994, "content": "<|im_start|>", "special": True}]}
+    bad_path = tmp_path / "bad_tokenizer.json"
+    bad_path.write_text(json.dumps(bad_data), encoding="utf-8")
+    with pytest.raises(ValueError, match="missing special token"):
+        render_mod.load_team3_marker_ids(bad_path)
 
 
 def test_effort_budgets_and_turn_tokens():

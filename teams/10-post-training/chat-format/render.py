@@ -82,7 +82,7 @@ def load_team3_marker_ids(tokenizer_path: Path | str | None = None) -> dict[int,
                 elif target == "RENAMES":
                     renames = ast.literal_eval(node.value)
         surface_to_id: dict[str, int] = dict(existing)
-        for _slot, (tok_id, surf) in renames.items():
+        for tok_id, surf in renames.values():
             surface_to_id[surf] = int(tok_id)
         mapped = {
             surface_to_id[surf]: (name, surf)
@@ -137,7 +137,7 @@ _PLAIN_TEXT_LOOKALIKES = (
 
 
 def surface(name: str) -> str:
-    for _, (n, surf) in ASSIGNED_SURFACES.items():
+    for n, surf in ASSIGNED_SURFACES.values():
         if n == name:
             return surf
     return f"<|{name}|>"
@@ -328,7 +328,7 @@ def _parse_system_effort(body: str) -> tuple[str, str]:
     if not body.startswith(EFFORT_PREFIX):
         raise RenderError(f"first system turn must start with {EFFORT_PREFIX!r}")
     rest = body[len(EFFORT_PREFIX) :]
-    level, sep, content = rest.partition("\n\n")
+    level, _sep, content = rest.partition("\n\n")
     if level not in EFFORT_BUDGETS:
         raise RenderError(f"effort must be one of {', '.join(EFFORT_BUDGETS)}")
     return level, content

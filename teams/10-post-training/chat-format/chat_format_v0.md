@@ -12,13 +12,13 @@ Instructor ruling, 27 Oct (reply to the special-tokens discussion in the G10 cha
 
 Markers in `v0` (each is one atomic special token in the tokenizer, never split into pieces):
 
-- Turn & document markers: `<|endoftext|>` (`000`), `<|im_start|>` (`001`), `<|im_end|>` (`002`)
-- Reasoning & tool markers: `<|think|>` (`024`), `<|/think|>` (`025`), `<|tool_call|>` (`026`), `<|/tool_call|>` (`027`), `<|tool_result|>` (`028`), `<|/tool_result|>` (`029`)
+- Turn & document markers: `<|endoftext|>` (`130822`), `<|im_start|>` (`129994`), `<|im_end|>` (`130816`)
+- Reasoning & tool markers: `<|think|>` (`130823`), `<|/think|>` (`130824`), `<|tool_call|>` (`130773`), `<|/tool_call|>` (`130825`), `<|tool_result|>` (`130774`), `<|/tool_result|>` (`130826`)
 
 Effort is **not** a token. It is a plain-text line, `Reasoning effort: {level}`, at the top of the first system turn. Levels are `1k`, `4k`, `16k` and `64k` (budgets of `1024`, `4096`, `16384` and `65536` tokens covering think + tool trace, excluding the final visible reply).
 
 - Plain-text XML look-alikes and Unicode homoglyphs (`<think>`, `</think>`, `<tool_call>`, `</tool_call>`, `<tool_result>`, `</tool_result>`, `<｜think｜>`, `＜think＞`) are strictly rejected by `render.py`.
-- All 9 assigned markers and 247 reserved slots (`0..255`) are listed in `teams/10-post-training/special-tokens/special_tokens_v0.md` for Team 3 (G3) to reserve by Saturday 31 Oct.
+- The 9 assigned markers and 59 remaining reserved G10 slots (64 slots total, IDs `130822..130885`) are listed in `teams/10-post-training/special-tokens/special_tokens_v1.md` aligned with Team 3 (G3 v0.1). Old `000..255` slot numbering is removed.
 
 ## Multi-Tier Context Hierarchy & RBAC Privilege Planes
 
@@ -51,7 +51,7 @@ Roles are `system`, `user`, `assistant`, and `tool`.
 4. **End of transcript:**
    `<|endoftext|>`
 
-`render.py` renders messages to a string, `parse()` reconstructs the messages and effort level, and `tokenize_markers()` splits a rendered transcript into atomic special-token IDs (`0..255`) and text spans to verify that no marker is ever left as plain text.
+`render.py` renders messages to a string, `parse()` reconstructs the messages and effort level, and `tokenize_markers()` splits a rendered transcript into atomic Team 3 special-token IDs and text spans to verify that no marker is ever left as plain text.
 
 One edge case: a first system message with empty content renders as the effort line only, so `parse()` returns no system message for it.
 

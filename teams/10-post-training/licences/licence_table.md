@@ -135,10 +135,16 @@ Three stages. Sets marked `excluded` stay in the table with the reason and are n
 
 ### 3. Amit T — Indic web (`ind-mr-fw2` · FineWeb-2 Marathi)
 
+- **Core team:** 10. Post-training and Agentic (Member A) · **Week 2:** 10. Post-training
 - **Set:** `ind-mr-fw2` — FineWeb-2 Marathi split (`data/mr/`)
 - **Language:** Marathi (`mr`)
-- **Source:** `HuggingFaceFW/fineweb-2` (Hugging Face, 2024; Common Crawl curated web pipeline)
+- **Source:** [`HuggingFaceFW/fineweb-2`](https://huggingface.co/datasets/HuggingFaceFW/fineweb-2) (Hugging Face, 2024; Common Crawl curated web pipeline)
+- **Generator model:** none (real web text extracted from Common Crawl via FineWeb-2 curation pipeline; no synthetic LLM generator).
 - **Licence:** `ODC-By v1.0` (Open Data Commons Attribution License v1.0). Commercial use is explicitly permitted with attribution.
+- **What the pack shows:**
+  - Zero ghost tokens or synthetic prompt markers found.
+  - Devanagari script joiners `U+200D` (ZWJ) and `U+200C` (ZWNJ) preserved for Marathi orthography (eyelash-ra `ऱ्या`, halant conjuncts).
+  - Takedown and provenance ledger: URLs and crawl dump IDs preserved to honor robots.txt opt-outs and DMCA/GDPR requests.
 - **Decision:** `TSAI reserves` — commercial-use only rule satisfied. Attribution requirement to be fulfilled in the public model card and training datasheet. Raw data not committed to repository.
 
 ### 4. f20201351h-maker — StarCoder (`code-python` · `bigcode/starcoderdata`, assigned 500-document pack)
@@ -994,6 +1000,7 @@ For Team 11's public model card, datasheet, and release compliance ledger:
    - **MIT:** `bigcode/commitpackft`, `SWE-Gym/SWE-Gym`, `agentica-org/DeepCoder-Preview-Dataset`, `zwhe99/DeepMath-103K`, `BodduSriPavan111/chandassu`.
    - **Apache-2.0:** `CohereLabs/aya_collection` (12 templated Indic subsets only), `CohereLabs/aya_dataset`, `open-r1/OpenR1-Math-220k`, `open-thoughts/OpenThoughts3-1.2M`, `bespokelabs/Bespoke-Stratos-17k`, `R2E-Gym/R2E-Gym-Subset`, `BytedTsinghua-SIA/DAPO-Math-17k`, `argilla/distilabel-math-dpo`, `HuggingFaceH4/Code-Feedback`.
    - **CC-BY-4.0 (Attribution required in release model card):** `nebius/SWE-rebench-openhands-trajectories`, `nvidia/Nemotron-Terminal-Corpus`, `nvidia/OpenCodeReasoning`, `nvidia/OpenCodeReasoning-2`, `open-r1/codeforces-cots`, `nvidia/OpenMathReasoning`, `nvidia/Nemotron-Science-v1`, `Salesforce/xlam-function-calling-60k`, `nvidia/Nemotron-Cascade-SFT-SWE`, `nvidia/Nemotron-Agentic-v1`, `nvidia/Nemotron-SFT-Agentic-v2` (tool-calling part only), `nebius/SWE-rebench-V2`, `open-r1/codeforces`, `nvidia/HelpSteer2`, `ai4bharat/sangraha`, `ai4bharat/IndicCorpV2`.
+   - **Stack per-file permissive (MIT, Apache-2.0, BSD; attribution required):** `bigcode/starcoderdata` (`code-go`, `code-python`, `code-rust` permissive subsets; copyleft and non-commercial files filtered out).
    - **ODC-By v1.0 (Attribution required in release model card):** `HuggingFaceFW/fineweb-2` (`ind-mr-fw2`, `ind-kn-fw2`), `allenai/wildguardmix`.
    - **Open-weight generator note for Gate 2:** The lab rule names `gpt-oss` as the allowed model generator and excludes closed models and Llama. Sets above that use other open-weight generators (`DeepSeek-R1`, `DeepSeek-V3.2`, `Qwen3-Coder`, `QwQ`, `Mixtral`, `Goedel-Prover`) have their exact generator model recorded in the table so TSAI can decide set by set at Gate 2.
 2. **Sets Marked `needs TSAI decision`:**
