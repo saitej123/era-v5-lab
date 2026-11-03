@@ -4,8 +4,7 @@
 **Author:** Member A (`@Amit T` / `@thinkTinkerGreen`), Team 10 (Post-Training and Agentic)  
 **Recipient:** Team 12 (Quantization and Serving)  
 **Artifacts:** 
-- `teams/10-post-training/chat-format/chat_template.jinja`
-- `teams/12-quantization/chat_template.jinja`
+- `teams/10-post-training/chat-format/chat_template.jinja` (Canonical Template SSOT)
 - Python validation suite: `teams/10-post-training/tests/test_chat_template.py`
 
 ---
@@ -16,7 +15,7 @@ This handoff provides Team 12 with the production-ready Jinja2 chat template (`c
 
 It is fully compatible with:
 1. **Hugging Face `transformers` / `tokenizers`**: Embedded in `tokenizer_config.json` under `"chat_template"`.
-2. **`vLLM`**: Passed via `--chat-template teams/12-quantization/chat_template.jinja`.
+2. **`vLLM`**: Passed via `--chat-template teams/10-post-training/chat-format/chat_template.jinja` (or copied to Team 12's topic directory).
 3. **`llama.cpp` / GGUF**: Embedded or passed via `--chat-template` during quantized GGUF inference (`llama-server`, `llama-cli`).
 
 ---
@@ -88,7 +87,7 @@ Every chat marker is a single atomic special token in Team 3's vocabulary:
 from transformers import AutoTokenizer
 
 tokenizer = AutoTokenizer.from_pretrained("/path/to/model")
-tokenizer.chat_template = open("teams/12-quantization/chat_template.jinja").read()
+tokenizer.chat_template = open("teams/10-post-training/chat-format/chat_template.jinja").read()
 
 prompt = tokenizer.apply_chat_template(
     messages=[
@@ -104,14 +103,14 @@ prompt = tokenizer.apply_chat_template(
 ```bash
 python -m vllm.entrypoints.openai.api_server \
     --model /path/to/quantized_model \
-    --chat-template teams/12-quantization/chat_template.jinja
+    --chat-template teams/10-post-training/chat-format/chat_template.jinja
 ```
 
 ### 4.3 llama.cpp CLI / Server
 ```bash
 ./llama-server \
     -m /path/to/model-Q4_K_M.gguf \
-    --chat-template-file teams/12-quantization/chat_template.jinja
+    --chat-template-file teams/10-post-training/chat-format/chat_template.jinja
 ```
 
 ---
