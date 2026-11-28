@@ -56,8 +56,9 @@ Step times are from a shared laptop. Part of seed 2 ran while a test suite was a
    to 6.7% of all gate weights); under `keep` 0.13% to 0.14% of all gate weights start deleted. During training the official
    layers recover to 1.8% to 7.8% deleted (`keep`: 0% to 0.47%). Final task loss is the same within 0.001.
 4. **Calibration size was not tested here.** A layer has 2,048 logits, so eta marks `floor(2048 / 2048) = 1` entry and
-   "strictly below that score" marks none. The prior deletes nothing at this size; only which layers calibration reaches
-   matters, and under `keep` 64 and 256 rows give the same run.
+   "strictly below that score" marks none. The prior marks no weight at this size, so calibration matters only through
+   which layers it reaches, and only under `official`: under `keep` every layer gets the same upward shift (what starts
+   deleted is its lower tail), and 64 and 256 rows end with the same loss and deletions.
 5. **Muon on the gate logits** gets closer to AdamW as its rate rises, but at 0.006 (12 times AdamW's rate) its task loss
    is still higher (1.89 against 1.43, same step count). It halves the optimizer state and its step takes 2.2 to 2.7 times
    as long on this CPU.

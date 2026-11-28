@@ -90,7 +90,17 @@ class TinyMoELM(nn.Module):
         return self.head(x * self.final_norm)
 
 
-def test_hybrid_muon_shape_routing_and_momentum_checkpoint_roundtrip():
+@pytest.fixture
+def deterministic_algorithms():
+    """For bit-for-bit comparisons. On more than one CPU thread the backward of `weight[idx]` adds in a varying order, so
+    gradients differ in the last bits, and Muon's bf16 orthogonalization can turn that into a visible weight difference."""
+    before = torch.get_deterministic_debug_mode()
+    torch.use_deterministic_algorithms(True)
+    yield
+    torch.set_deterministic_debug_mode(before)
+
+
+def test_hybrid_muon_shape_routing_and_momentum_checkpoint_roundtrip(deterministic_algorithms):
     torch.manual_seed(7)
     m = TinyMoELM()
     opt = ho.build_optimizer(m.named_parameters(), kind="hybrid_muon", lr=1e-3, muon_lr=6e-3, wd=0.01)

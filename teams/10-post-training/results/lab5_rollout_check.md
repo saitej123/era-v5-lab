@@ -72,8 +72,13 @@ On Team 9's published score files for one set of (untrained) weights, with the s
 The largest change in either direction was 0.0086. Numerical differences alone produce shifts of this size, and the
 paired interval flags them. 0.01 sits just above the largest; it is chosen from these files only. It is not calibrated on trained checkpoints.
 
+The check itself refuses both of these pairs, because it needs the same device, dtype and hardware on both sides, and
+Team 9's card reports identical scores on repeated GPU runs. So read 0.01 as the smallest rise the check counts, not as
+measured noise between two scores it accepts. Lab PR 929 commit `935b969a` (28 November) also refuses to compare
+different devices: the first row and the command below need the files at `8ed4b554`. The check's verdicts do not change.
+
 ```bash
-# from the repository root, with lab PR 929's files; --min-bpb 0 gives the third column
+# from the repository root, with lab PR 929's files at 8ed4b554; --min-bpb 0 gives the third column
 python teams/10-post-training/rl-loop/rollout_check.py files \
   teams/09-evaluation/results/minibench_v1/quick-cpu.json teams/09-evaluation/results/minibench_v1/quick-cuda.json
 ```
@@ -92,6 +97,7 @@ python teams/10-post-training/rl-loop/rollout_check.py files \
   held-out files.
 - A run with the check on logs the same training rewards, losses and k3 as one without it (tiny model, 4 steps).
 - `rl-loop/test_rollout_check.py`: 23 tests. One needs `minibench_compare.py` and is skipped until lab PR 929 is merged.
+  All 23 pass with that file from `8ed4b554` or from `935b969a` in place.
 
 ## Cost to the trainer
 
@@ -105,7 +111,7 @@ written, so a check costs less than the table's two files:
 | `w4a16_sim` | 0.34 s | 1.42 s | 1,422 MB |
 
 ```bash
-# from teams/10-post-training/ (12 s wall, peak 2.4 GB resident, torch 2.7.1+cpu; load average 5.3 at the start)
+# from teams/10-post-training/ (12 s wall, peak 2.4 GB resident, torch 2.7.1+cpu; load average 5.0 at the start)
 python rl-loop/bench_quant_rollout.py export --threads 8 --out results/lab5_rollout_check_export.json
 ```
 
@@ -121,4 +127,7 @@ profile.
 - Ten tasks are tested at every check with no multiple-testing correction. Between two separately trained runs
   (`control`), the interval covers item sampling only, not the difference between two training runs.
 - Held-out bits per byte has no interval in the comparison, so it is logged and never decides.
+- Lab PR 929 can still change. On 28 November Team 9 said ARC-Easy, HumanEval and MBPP wait for TSAI's approval, and that
+  removing them would change the suite and item hashes. None of the three decides a verdict, and the check pins no hash.
+  Team 9's comparison does need both score files from the same suite version, so older scores may need redoing.
 - Not run: benchmark items, a GPU, a Team 5 checkpoint, a real bf16 control run.

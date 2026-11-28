@@ -126,3 +126,8 @@ uv run --no-project --with numpy --with transformers --with pyyaml --with safete
   weights are rounded in the simulated schemes, so a head or expert held as a bare tensor stays exact. `int8_dynamic` does
   not support this model.
 - Deletion Tuning with a quantized sampler is refused by the trainer.
+- The vLLM sampler (`train.sampler: vllm`) is outside this work. From the code, not from a run: the trainer logs
+  `mismatch_k3` from vLLM's log-probabilities, and its stops on this path run before the first update (the weight-sync
+  check, `train.verify_sync`, on by default, and the opt-in `train.logprob_gate`). The per-step stop `max_k3` and
+  `rollout_check` are refused (both need `sampler: quant`), `team5_adapter` models cannot use this sampler, and
+  `VLLMSampler` takes no quantization argument. A pre-quantized checkpoint with the trainer's weight sync is untried.
