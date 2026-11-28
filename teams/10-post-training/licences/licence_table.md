@@ -2189,3 +2189,16 @@ from. Downloadable is not the same as licensed. It is the one benchmark of the 1
 WebArena, WorkArena, BrowseComp, OSWorld, Aider Polyglot.
 
 **Update on the Lab 5 Task 1 rule (TSAI 28 Nov Lab Rules #1):** TSAI confirmed on 28 Nov that **NC, ND and unstated licences are allowed for all data, post-training data too** — fill in the licence and where it was found, and if a model made the data, also write the model and the licence terms of that model. Every evaluation row above is already permissive (`MIT`, `Apache-2.0`, `CC-BY-4.0`, `CC-BY-SA-4.0`); `BBH` (`MIT` on original release, unstated on Hub mirror) is eligible under this rule, while **HellaSwag remains `excluded` due to the 2026-09-14 wikiHow DMCA takedown (HTTP 451)**, not because of an NC/ND tag. Earlier NC/ND/unstated rows marked `excluded` in historical Gate 2/3 tables stay documented as historical entries until re-reviewed for staging.
+
+### Lab 5 Task 1: New Hindi Sources from Team 2 (`#938`) (28 Nov 2026)
+
+| Set | Source | Language / Domain | Generator | Licence | Decision |
+|---|---|---|---|---|---|
+| `rl-indic-hawp-hi` | [`hellomasaya/hawp`](https://github.com/hellomasaya/hawp) (LTRC, IIIT-Hyderabad, LREC 2022) | Hindi / RL arithmetic (2,336 human problems with `Equation`) | none (human-written, LREC 2022) | unstated (no `LICENSE` file in repo, checked 28 Nov) | needs TSAI decision |
+| `sft-indic-hindichat` | [`rishiraj/hindichat`](https://huggingface.co/datasets/rishiraj/hindichat) | Hindi / SFT chat (10,000 rows per card) | not stated on card | `cc-by-nc-4.0` (HF tag) | needs TSAI decision |
+| `sft-indic-hindi-187k` | [`guneetsk99/hindi_instruction_set_187K`](https://huggingface.co/datasets/guneetsk99/hindi_instruction_set_187K) | Hindi / SFT instructions (~187k rows) | not stated (empty card) | `cc-by-nc-nd-4.0` (HF tag) | needs TSAI decision |
+| `sft-indic-indic-instruct-hi-anudesh` | [`ai4bharat/indic-instruct-data-v0.1`](https://huggingface.co/datasets/ai4bharat/indic-instruct-data-v0.1) (`anudesh`, hi) | Hindi / SFT chat (7,577 crowd prompts) | Llama-2-70B (Llama 2 Community Licence) responses | `cc-by-4.0` (Airavata report, `arXiv 2401.15006`) | needs TSAI decision |
+| `sft-indic-indic-instruct-hi-hh-rlhf` | [`ai4bharat/indic-instruct-data-v0.1`](https://huggingface.co/datasets/ai4bharat/indic-instruct-data-v0.1) (`hh-rlhf`, hi) | Hindi / SFT chat (5,000 rows) | closed Anthropic model responses, translated | `mit` (Airavata report, `arXiv 2401.15006`) | needs TSAI decision |
+| `sft-indic-indic-instruct-hi-lm-sys` | [`ai4bharat/indic-instruct-data-v0.1`](https://huggingface.co/datasets/ai4bharat/indic-instruct-data-v0.1) (`lm_sys`, hi) | Hindi / SFT chat (50,000 rows) | mixed chat models (some closed) | LMSYS-Chat-1M Dataset License Agreement (Airavata report) | needs TSAI decision |
+
+**Flag on existing `sft-indic-indic-instruct-hi` (`wikihow` subset, 6,055 Hindi rows):** `ai4bharat/indic-instruct-data-v0.1` `wikihow` carries `CC-0` in the Airavata report (`arXiv 2401.15006`), but wikiHow content was the basis of the 2026-09-14 DMCA takedown on HellaSwag (`HTTP 451`); ask TSAI before staging the `wikihow` subset.
